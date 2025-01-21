@@ -1,5 +1,12 @@
  README : Système de Détection de Fraude par Carte de Crédit
 
+
+ Membres du Groupe
+- Abdoul Wadoud BABA
+- KOROGOU Moubarak  
+- LOKO Teddy
+
+
  Description du Projet
 Ce projet propose une interface utilisateur interactive pour un système de détection de fraude par carte de crédit. Il simule la détection de transactions frauduleuses en fonction des données saisies par l'utilisateur. Bien que simplifiée, l'application offre une base pour une exploration plus approfondie des concepts liés à la sécurité financière et à la détection de fraude.
 
