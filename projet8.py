@@ -17,13 +17,74 @@ class ModernCreditFraudDetectionApp:
         self.main_container.pack(fill=BOTH, expand=YES)
         
         self.create_header()
-        
         self.create_main_area()
-        
         self.create_transaction_history()
-        
         self.create_footer()
         
+    def analyze_transaction(self):
+        """Analyse la transaction avec des validations améliorées"""
+        card = self.card_number_field.get()
+        amount = self.amount_field.get()
+        trans_type = self.type_field.get()
+        time = self.time_field.get()
+        location = self.location_field.get()
+        
+        # Validation de base
+        if not all([card, amount, trans_type, time, location]):
+            messagebox.showerror("Erreur", "Veuillez remplir tous les champs")
+            return
+
+        # Validation du numéro de carte
+        card_cleaned = card.replace(" ", "")
+        if not card_cleaned.isdigit() or len(card_cleaned) != 16:
+            messagebox.showerror("Erreur", "Numéro de carte invalide. La carte doit contenir 16 chiffres.")
+            return
+
+        # Validation du montant
+        try:
+            amount_value = float(amount.replace("FCFA", "").strip())
+            if amount_value <= 0:
+                messagebox.showerror("Erreur", "Le montant doit être supérieur à 0")
+                return
+        except ValueError:
+            messagebox.showerror("Erreur", "Montant invalide")
+            return
+
+        # Validation de l'heure
+        try:
+            datetime.strptime(time, "%H:%M")
+        except ValueError:
+            messagebox.showerror("Erreur", "Format d'heure invalide. Utilisez le format HH:MM")
+            return
+
+        # Validation de la localisation
+        if any(char.isdigit() for char in location):
+            messagebox.showerror("Erreur", "La localisation ne doit pas contenir de chiffres")
+            return
+
+        # Si toutes les validations sont passées, procéder à l'analyse
+        try:
+            is_suspicious = amount_value > 1000
+            
+            status = "Suspect" if is_suspicious else "Légitime"
+            score = "45%" if is_suspicious else "98%"
+            
+            self.tree.insert("", 0, values=(
+                datetime.now().strftime("%Y-%m-%d %H:%M"),
+                f"{amount_value:.2f} FCFA",
+                trans_type,
+                status,
+                score
+            ))
+            
+            if is_suspicious:
+                messagebox.showwarning("Attention", "Transaction suspecte détectée !")
+            else:
+                messagebox.showinfo("Succès", "Transaction légitime")
+                
+        except Exception as e:
+            messagebox.showerror("Erreur", f"Une erreur est survenue : {str(e)}")
+            
     def create_header(self):
         """Crée l'en-tête de l'application"""
         header_frame = ttk.Frame(self.main_container)
@@ -175,45 +236,8 @@ class ModernCreditFraudDetectionApp:
         if not field.get():
             field.insert(0, placeholder)
             field.configure(foreground="gray")
-            
-    def analyze_transaction(self):
-        """Analyse la transaction"""
-        card = self.card_number_field.get()
-        amount = self.amount_field.get()
-        trans_type = self.type_field.get()
-        time = self.time_field.get()
-        location = self.location_field.get()
-        
-        if not all([card, amount, trans_type, time, location]):
-            messagebox.showerror("Erreur", "Veuillez remplir tous les champs")
-            return
-        
-        try:
-            amount_value = float(amount.replace("FCFA", "").strip())
-            is_suspicious = amount_value > 1000
-            
-            status = "Suspect" if is_suspicious else "Légitime"
-            score = "45%" if is_suspicious else "98%"
-            
-            self.tree.insert("", 0, values=(
-                datetime.now().strftime("%Y-%m-%d %H:%M"),
-                f"{amount_value:.2f} FCFA",
-                trans_type,
-                status,
-                score
-            ))
-            
-            if is_suspicious:
-                messagebox.showwarning("Attention", "Transaction suspecte détectée !")
-            else:
-                messagebox.showinfo("Succès", "Transaction légitime")
-                
-        except ValueError:
-            messagebox.showerror("Erreur", "Montant invalide")
 
 if __name__ == "__main__":
     root = ttk.Window()
     app = ModernCreditFraudDetectionApp(root)
     root.mainloop()
-
-    
